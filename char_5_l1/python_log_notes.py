@@ -50,8 +50,12 @@
 ...             session.commit()
 
 
-
-
+>>> spinach = session.query(MenuItem).filter_by(name = 'Spinach Ice Cream').one()
+>>> print spinach.restaurant.name
+Auntie Ann's Diner 
+>>> session.delete(spinach)
+>>> session.commit()
+>>> spinach = session.query(MenuItem).filter_by(name = 'Spinach Ice Cream').one()
 
 
 
