@@ -1,8 +1,8 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import cgi
+import cgi  # common gateway interface
 
 
-class webServerHandler(BaseHTTPRequestHandler):
+class WebServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
@@ -41,31 +41,34 @@ class webServerHandler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             ctype, pdict = cgi.parse_header(
-                self.headers.getheader('content-type'))
-            if ctype == 'multipart/form-data':
+                self.headers.getheader('Content-type'))
+            if ctype == 'mutipart/form-data':
                 fields = cgi.parse_multipart(self.rfile, pdict)
                 messagecontent = fields.get('message')
+
             output = ""
             output += "<html><body>"
-            output += " <h2> Okay, how about this: </h2>"
+            output += "<h2> Okay, how about this: </h2>"
             output += "<h1> %s </h1>" % messagecontent[0]
             output += '''<form method='POST' enctype='multipart/form-data' action='/hello'><h2>What would you like me to say?</h2><input name="message" type="text" ><input type="submit" value="Submit"> </form>'''
             output += "</body></html>"
+            output += "</body></html>"
             self.wfile.write(output)
             print output
-        except:
+        except BaseException:
             pass
 
 
 def main():
     try:
         port = 8080
-        server = HTTPServer(('', port), webServerHandler)
-        print "Web Server running on port %s" % port
+        server = HTTPServer(('', port), WebServerHandler)
+        print "Web server running on port %s" % port
         server.serve_forever()
     except KeyboardInterrupt:
-        print " ^C entered, stopping web server...."
+        print "^C entered, stopping web server...."
         server.socket.close()
+
 
 if __name__ == '__main__':
     main()
