@@ -1,12 +1,12 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import cgi
 
-# import CRUD Operations from Lesson 1
+# import CRUD Operations from Lesson 1 ##
 from database_setup import Base, Restaurant, MenuItem
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-# Create session and connect to DB
+# Create session and connect to DB ##
 engine = create_engine('sqlite:///restaurantmenu.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
@@ -17,7 +17,7 @@ class webServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         try:
-            # Objective 3 Step 2 - Create /restarants/new page
+            # Objective 3 Step 2 - Create /restaurants/new page
             if self.path.endswith("/restaurants/new"):
                 self.send_response(200)
                 self.send_header('Content-type', 'text/html')
@@ -48,21 +48,22 @@ class webServerHandler(BaseHTTPRequestHandler):
                     output += "<input type = 'submit' value = 'Rename'>"
                     output += "</form>"
                     output += "</body></html>"
-                    self.wfile.write(output)
 
+                    self.wfile.write(output)
             if self.path.endswith("/delete"):
                 restaurantIDPath = self.path.split("/")[2]
-                myRestaurantQuery = session.query(
-                    Restaurant).filter_by(id=restaurantIDPath).one()
-                if myRestaurantQuery != []:
+
+                myRestaurantQuery = session.query(Restaurant).filter_by(
+                    id=restaurantIDPath).one()
+                if myRestaurantQuery:
                     self.send_response(200)
                     self.send_header('Content-type', 'text/html')
                     self.end_headers()
                     output = ""
                     output += "<html><body>"
-                    output += "<h1>Ate you sure you want to delete %s?</h1>" % myRestaurantQuery.name
-                    output += "<from method='POST' enctype='multipart/form-data' action='/restarants/%s/delete' >" % restaurantIDPath
-                    output += "<input type = 'submit' value='Delete'>"
+                    output += "<h1>Are you sure you want to delete %s?" % myRestaurantQuery.name
+                    output += "<form method='POST' enctype = 'multipart/form-data' action = '/restaurants/%s/delete'>" % restaurantIDPath
+                    output += "<input type = 'submit' value = 'Delete'>"
                     output += "</form>"
                     output += "</body></html>"
                     self.wfile.write(output)
@@ -82,9 +83,11 @@ class webServerHandler(BaseHTTPRequestHandler):
                     output += "</br>"
                     # Objective 2 -- Add Edit and Delete Links
                     # Objective 4 -- Replace Edit href
+
                     output += "<a href ='/restaurants/%s/edit' >Edit </a> " % restaurant.id
                     output += "</br>"
-                    output += "<a href ='/restaurants/%s/Delete'> Delete </a>" % restaurant.id
+                    # Objective 5 -- Replace Delete href
+                    output += "<a href ='/restaurants/%s/delete'> Delete </a>" % restaurant.id
                     output += "</br></br></br>"
 
                 output += "</body></html>"
@@ -97,14 +100,10 @@ class webServerHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         try:
             if self.path.endswith("/delete"):
-
-                ctype, pdict = cgi.parse_header(
-                    self.headers.getheader('content-type'))
                 restaurantIDPath = self.path.split("/")[2]
-                myRestaurantQuery = session.query(
-                    Restaurant).filter_by(id=restaurantIDPath).one()
-
-                if myRestaurantQuery != []:
+                myRestaurantQuery = session.query(Restaurant).filter_by(
+                    id=restaurantIDPath).one()
+                if myRestaurantQuery:
                     session.delete(myRestaurantQuery)
                     session.commit()
                     self.send_response(301)
@@ -148,7 +147,7 @@ class webServerHandler(BaseHTTPRequestHandler):
                     self.send_header('Location', '/restaurants')
                     self.end_headers()
 
-        except BaseException:
+        except:
             pass
 
 
